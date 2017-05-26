@@ -22,7 +22,7 @@ var app = angular.module('flapperNews', ['ui.router'])
             $urlRouterProvider.otherwise('home');
         }
     ])
-    .factory('posts', ['$http', function() {
+    .factory('posts', ['$http', function($http) {
         var obj = {
             posts: []
         };
@@ -31,31 +31,27 @@ var app = angular.module('flapperNews', ['ui.router'])
                 angular.copy(data, obj.posts);
             });
         }
+        obj.create = function(post) {
+            return $http.post('/posts', post).success(function(data) {
+                obj.posts.push(data);
+            });
+        };
         return obj;
     }])
     .controller('MainCtrl', [
         '$scope', 'posts',
         function($scope, posts) {
             $scope.test = 'Hello world!';
-
             $scope.posts = posts.posts;
-
             $scope.addPost = function() {
-                $scope.posts.push({
+                if (!$scope.title || $scope.title === '') { return; }
+                posts.create({
                     title: $scope.title,
-                    upvotes: 0,
                     link: $scope.link,
-                    comments: [
-                        { author: 'Joe', body: 'Cool post', upvotes: 0 },
-                        { author: 'Bob', body: 'Yahoooooo', upvotes: 0 },
-                        { author: 'Adam', body: 'Nice!', upvotes: 0 }
-
-                    ]
                 });
                 $scope.title = '';
                 $scope.link = '';
             }
-
             $scope.incrementUpvotes = function(post) {
                 post.upvotes += 1;
             };
