@@ -36,6 +36,13 @@ var app = angular.module('flapperNews', ['ui.router'])
                 obj.posts.push(data);
             });
         };
+        obj.upvote = function(post) {
+            return $http.put('/posts/' + post._id + '/upvote')
+                .success(function(data) {
+                    post.upvotes += 1;
+                });
+        };
+
         return obj;
     }])
     .controller('MainCtrl', [
@@ -53,7 +60,7 @@ var app = angular.module('flapperNews', ['ui.router'])
                 $scope.link = '';
             }
             $scope.incrementUpvotes = function(post) {
-                post.upvotes += 1;
+                posts.upvote(post);
             };
         }
     ])
