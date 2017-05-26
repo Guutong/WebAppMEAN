@@ -7,7 +7,12 @@ var app = angular.module('flapperNews', ['ui.router'])
                 .state('home', {
                     url: '/home',
                     templateUrl: '/home.html',
-                    controller: 'MainCtrl'
+                    controller: 'MainCtrl',
+                    resolve: {
+                        postPromise: ['posts', function(posts) {
+                            return posts.getAll();
+                        }]
+                    }
                 })
                 .state('posts', {
                     url: '/posts/{id}',
@@ -17,10 +22,15 @@ var app = angular.module('flapperNews', ['ui.router'])
             $urlRouterProvider.otherwise('home');
         }
     ])
-    .factory('posts', [function() {
+    .factory('posts', ['$http', function() {
         var obj = {
             posts: []
         };
+        obj.getAll = function() {
+            return $http.get('/posts').success(function(data) {
+                angular.copy(data, obj.posts);
+            });
+        }
         return obj;
     }])
     .controller('MainCtrl', [
